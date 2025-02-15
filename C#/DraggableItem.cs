@@ -8,7 +8,9 @@ public class DraggableItem : MonoBehaviour
 
     private Vector3 offset;
     private bool isDragging = false;
+
     private Rigidbody2D rb;
+    private Collider2D currPetCollider;
 
     void Start(){
         rb = GetComponent<Rigidbody2D>();
@@ -35,6 +37,8 @@ public class DraggableItem : MonoBehaviour
                     break;
 
                 case TouchPhase.Ended:
+                    if(isDragging && currPetCollider != null) FeedPet();
+
                     isDragging = false;
                     CheckInteraction();
 
@@ -55,11 +59,19 @@ public class DraggableItem : MonoBehaviour
         Collider2D[] colliders = Physics2D.OverlapCircleAll(transform.position, 0.5f);
         foreach(Collider2D col in colliders){
             if(col.CompareTag("Pet")){
-                BasicNeeds pet = col.GetComponent<BasicNeeds>();
-                
-                if(pet == null) continue;
-                pet.FeedPet(foodData);
+                currPetCollider = col;
+                return;
             }
         }
+
+        currPetCollider = null;
+    }
+
+    void FeedPet(){
+        BasicNeeds pet = currPetCollider.GetComponent<BasicNeeds>();
+        if(pet == null) return;
+
+        pet.FeedPet(foodData);
+        this.gameObject.SetActive(false);
     }
 }

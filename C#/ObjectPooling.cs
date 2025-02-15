@@ -4,7 +4,12 @@ using UnityEngine;
 
 public class ObjectPooling : MonoBehaviour
 {
-    public static ObjectPooling instance { get; private set; }
+    public static ObjectPooling Instance { get; private set; }
+
+    public enum PoolType{
+        Default,
+        Food
+    }
 
     [System.Serializable]
     public class Pool{
@@ -12,13 +17,15 @@ public class ObjectPooling : MonoBehaviour
         public GameObject prefab;
         public int size;
         public Transform parentTransformation;
+
+        public PoolType poolType;
     }
 
     public List<Pool> pools;
     private Dictionary<string, Queue<GameObject>> poolDictionary;
 
     void Awake(){
-        if(instance == null) instance = this;
+        if(Instance == null) Instance = this;
         else Destroy(gameObject);
     }
 
@@ -53,4 +60,17 @@ public class ObjectPooling : MonoBehaviour
         poolDictionary[token].Enqueue(obj);
         return obj;
     }
+
+    public List<string> GetFoodTokens(){
+        List<string> foodTokens = new List<string>();
+
+        foreach(var pool in pools){
+            if(pool.poolType == PoolType.Food){
+                foodTokens.Add(pool.token);
+            }
+        }
+
+        return foodTokens;
+    }
+
 }
