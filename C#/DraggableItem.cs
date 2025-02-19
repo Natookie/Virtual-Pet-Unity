@@ -12,8 +12,13 @@ public class DraggableItem : MonoBehaviour
     private Rigidbody2D rb;
     private Collider2D currPetCollider;
 
+    [HideInInspector]
+    private float defaultGravityScale;
+
     void Start(){
         rb = GetComponent<Rigidbody2D>();
+
+        defaultGravityScale = rb.gravityScale;
     }
 
     void Update(){
@@ -33,19 +38,21 @@ public class DraggableItem : MonoBehaviour
 
                 case TouchPhase.Moved:
                     if(isDragging) transform.position = touchPos + offset;
+                    rb.gravityScale = 0f;
+                    rb.velocity = Vector2.zero;
 
                     break;
 
                 case TouchPhase.Ended:
                     if(isDragging && currPetCollider != null) FeedPet();
+                    rb.gravityScale = defaultGravityScale;
+                    rb.velocity = new Vector2(rb.velocity.x, -1f);
 
                     isDragging = false;
                     CheckInteraction();
 
                     break;
             }
-
-            rb.gravityScale = (isDragging) ? 0f : 1f;
         }
     }
 
